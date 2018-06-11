@@ -30,7 +30,7 @@ window.addEventListener('load', function() {
 	document.body.addEventListener('gesturechange', function(e) {
 		e.preventDefault();
 		var o = document.getElementsByTagName('output')[0];
-		o.innerHTML = o.innerHTML+ '; Scale:'+e.scale+' Rotation:'+e.rotation;
+		o.innerHTML = 'Scale:'+e.scale+' Rotation:'+e.rotation+'; '+o.innerHTML+ ;
 	}, false);
 }, false);
 </script>
