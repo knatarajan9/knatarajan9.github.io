@@ -20,7 +20,7 @@ output {
 	padding: 1em;
 	font-size: 0.75em;
 	background: #ddd;
-	height: 20em;
+	height: 35em;
 	overflow:auto;
 	line-height: 1;
 }
@@ -30,7 +30,7 @@ window.addEventListener('load', function() {
 	document.body.addEventListener('gesturechange', function(e) {
 		e.preventDefault();
 		var o = document.getElementsByTagName('output')[0];
-		o.innerHTML = 'Scale:'+e.scale+' Rotation:'+e.rotation;
+		o.innerHTML = o.innerHTML+ '; Scale:'+e.scale+' Rotation:'+e.rotation;
 	}, false);
 }, false);
 </script>
