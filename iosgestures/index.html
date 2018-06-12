@@ -26,21 +26,23 @@ output {
 }
 </style>
 <script>
-var handler = function(e) {
-		e.preventDefault();
-		var o = document.getElementsByTagName('output')[0];
-		o.innerHTML = e.scale+', '+e.rotation+'; \n'+o.innerHTML;
-		//document.body.removeEventListener('touchstart', touchhandler);
-	}, false);
-var touchhandler = function(e) {
+var flag = 0
+window.addEventListener('load', function() {
+	document.body.addEventListener('touchstart', function(e) {
+		if (flag == 0){
 		e.preventDefault();
 		var touch = e.touches[0];
+    		alert(touch.pageX + " - " + touch.pageY);
 		var o = document.getElementsByTagName('output')[0];
-		o.innerHTML =  't ' + touch.pageX+', '+touch.pageY+'; \n'+o.innerHTML;
+		o.innerHTML = 't ' touch.pageX+', '+touch.pageY+'; 'o.innerHTML;
+		}
 	}, false);
-window.addEventListener('load', function() {
-	document.body.addEventListener('touchstart', touchhandler);
-	document.body.addEventListener('gesturechange', handler);
+	document.body.addEventListener('gesturechange', function(e) {
+		e.preventDefault();
+		var o = document.getElementsByTagName('output')[0];
+		o.innerHTML = e.scale+', '+e.rotation+'; 'o.innerHTML;
+		flag = 1
+	}, false);
 }, false);
 </script>
 </head>
