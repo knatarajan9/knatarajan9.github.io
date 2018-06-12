@@ -25,6 +25,7 @@ output {
 }
 </style>
 <script>
+var flag = 0
 window.addEventListener('load', function() {
 	document.body.addEventListener('gesturechange', function(e) {
 		e.preventDefault();
@@ -38,6 +39,7 @@ window.addEventListener('load', function() {
 		var touch = e.touches[0];
 		var o = document.getElementsByTagName('output')[0];
 		o.innerHTML =  't ' + touch.pageX+', '+touch.pageY+'; \n'+o.innerHTML;
+		o.innerHTML = flag
 	}, false);
 }, false);
 </script>
