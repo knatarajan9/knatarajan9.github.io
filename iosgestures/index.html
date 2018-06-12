@@ -14,7 +14,7 @@ html,body {
 h1 {
 	font-size: 1.2em;
 }
-
+	
 output {
 	display: block;
 	padding: 1em;
@@ -31,6 +31,14 @@ window.addEventListener('load', function() {
 		e.preventDefault();
 		var o = document.getElementsByTagName('output')[0];
 		o.innerHTML = e.scale+', '+e.rotation+'; \n'+o.innerHTML;
+	}, false);
+}, false);
+window.addEventListener('load', function() {
+	document.body.addEventListener('touchmove', function(e) {
+		e.preventDefault();
+		var touch = e.touches[0];
+		var c = document.getElementsByTagName('output')[0];
+		o.innerHTML =  touch.pageX+', '+touch.pageY+'; \n'+o.innerHTML;
 	}, false);
 }, false);
 </script>
