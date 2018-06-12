@@ -26,6 +26,7 @@ output {
 </style>
 <script>
 var flag = 0
+var fingercount = 0
 window.addEventListener('load', function() {
 	document.body.addEventListener('gesturechange', function(e) {
 		e.preventDefault();
@@ -40,7 +41,8 @@ window.addEventListener('load', function() {
 		e.preventDefault();
 		var touch = e.touches[0];
 		var o = document.getElementsByTagName('output')[0];
-		o.innerHTML =  't ' + touch.pageX+', '+touch.pageY+'; \n'+o.innerHTML;}
+		o.innerHTML =  't ' + touch.pageX+', '+touch.pageY+'; \n'+o.innerHTML;
+		o.innerHTML = e.touches.length}
 	}, false);
 }, false);
 window.addEventListener('load', function() {
@@ -49,7 +51,8 @@ window.addEventListener('load', function() {
 		e.preventDefault();
 		var touch = e.touches[0];
 		var o = document.getElementsByTagName('output')[0];
-		o.innerHTML =  't ' + touch.pageX+', '+touch.pageY+'; \n'+o.innerHTML;}
+		o.innerHTML =  't ' + touch.pageX+', '+touch.pageY+'; \n'+o.innerHTML;
+		o.innerHTML = e.touches.length}
 	}, false);
 }, false);
 </script>
