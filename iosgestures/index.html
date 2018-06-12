@@ -37,8 +37,8 @@ window.addEventListener('load', function() {
 	document.body.addEventListener('touchstart', function(e) {
 		e.preventDefault();
 		var touch = e.touches[0];
-		var c = document.getElementsByTagName('output')[0];
-		c.innerHTML =  't ' + touch.pageX+', '+touch.pageY+'; \n'+c.innerHTML;
+		var o = document.getElementsByTagName('output')[0];
+		o.innerHTML =  't ' + touch.pageX+', '+touch.pageY+'; \n'+o.innerHTML;
 	}, false);
 }, false);
 </script>
