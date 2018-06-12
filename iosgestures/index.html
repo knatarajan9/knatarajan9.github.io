@@ -45,10 +45,11 @@ window.addEventListener('load', function() {
 }, false);
 window.addEventListener('load', function() {
 	document.body.addEventListener('touchmove', function(e) {
+		if (flag == 0){
 		e.preventDefault();
 		var touch = e.touches[0];
 		var o = document.getElementsByTagName('output')[0];
-		o.innerHTML =  't ' + touch.pageX+', '+touch.pageY+'; \n'+o.innerHTML;
+		o.innerHTML =  't ' + touch.pageX+', '+touch.pageY+'; \n'+o.innerHTML;}
 	}, false);
 }, false);
 </script>
