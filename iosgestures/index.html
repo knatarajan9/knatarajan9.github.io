@@ -28,14 +28,6 @@ output {
 var flag = 0
 var fingercount = 0
 window.addEventListener('load', function() {
-	document.body.addEventListener('gesturechange', function(e) {
-		e.preventDefault();
-		var o = document.getElementsByTagName('output')[0];
-		o.innerHTML = e.scale+', '+e.rotation+'; \n'+o.innerHTML;
-		flag = 1
-	}, false);
-}, false);
-window.addEventListener('load', function() {
 	document.body.addEventListener('touchstart', function(e) {
 		if (flag == 0){
 		e.preventDefault();
