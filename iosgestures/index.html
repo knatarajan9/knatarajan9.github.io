@@ -26,20 +26,21 @@ output {
 }
 </style>
 <script>
-window.addEventListener('load', function() {
-	document.body.addEventListener('gesturechange', function(e) {
+var handler = function(e) {
 		e.preventDefault();
 		var o = document.getElementsByTagName('output')[0];
 		o.innerHTML = e.scale+', '+e.rotation+'; \n'+o.innerHTML;
+		document.body.removeEventListener('touchstart', touchhandler);
 	}, false);
-}, false);
-window.addEventListener('load', function() {
-	document.body.addEventListener('touchstart', function(e) {
+var touchhandler = function(e) {
 		e.preventDefault();
 		var touch = e.touches[0];
 		var o = document.getElementsByTagName('output')[0];
 		o.innerHTML =  't ' + touch.pageX+', '+touch.pageY+'; \n'+o.innerHTML;
 	}, false);
+window.addEventListener('load', function() {
+	document.body.addEventListener('touchstart', touchhandler);
+	document.body.addEventListener('gesturechange', handler);
 }, false);
 </script>
 </head>
