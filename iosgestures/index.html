@@ -30,7 +30,7 @@ var handler = function(e) {
 		e.preventDefault();
 		var o = document.getElementsByTagName('output')[0];
 		o.innerHTML = e.scale+', '+e.rotation+'; \n'+o.innerHTML;
-		document.body.removeEventListener('touchstart', touchhandler);
+		//document.body.removeEventListener('touchstart', touchhandler);
 	}, false);
 var touchhandler = function(e) {
 		e.preventDefault();
