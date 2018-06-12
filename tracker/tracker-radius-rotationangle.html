@@ -39,17 +39,17 @@ function draw() {
 	c.lineWidth = "10";
 	for (var i = 0, l = points.length; i<l; i++) {
 		rotationAngle = points[i].rotationAngle || 0;
-		radiusX = points[i].radiusX || 40;
-		radiusY = points[i].radiusY || 40;
+		radiusX = points[i].radiusX;// || 40;
+		radiusY = points[i].radiusY;// || 40;
 		// add some pixels for better visibility
-		radiusX += 20;
-		radiusY += 20;
+		//radiusX += 20;
+		//radiusY += 20;
 		/* draw all circles */
 		c.beginPath();
 		c.ellipse(points[i].clientX, points[i].clientY, radiusX, radiusY, rotationAngle * Math.PI/180, 0, Math.PI*2, true);
 		c.stroke();
 		// HUD (hacky)
-		var hud_props = ['touch', 'clientX: '+points[i].clientX+' clientY: '+points[i].clientY];
+		var hud_props = [''];// ['touch', 'clientX: '+points[i].clientX+' clientY: '+points[i].clientY];
 		if (points[i].radiusX && points[i].radiusY) {
 			hud_props.push('radiusX: '+points[i].radiusX+' radiusY: '+points[i].radiusY);
 		}
