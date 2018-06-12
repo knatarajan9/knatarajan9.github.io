@@ -31,15 +31,24 @@ window.addEventListener('load', function() {
 		e.preventDefault();
 		var o = document.getElementsByTagName('output')[0];
 		o.innerHTML = e.scale+', '+e.rotation+'; \n'+o.innerHTML;
+		flag = 1
 	}, false);
 }, false);
 window.addEventListener('load', function() {
 	document.body.addEventListener('touchstart', function(e) {
+		if (flag == 0){
+		e.preventDefault();
+		var touch = e.touches[0];
+		var o = document.getElementsByTagName('output')[0];
+		o.innerHTML =  't ' + touch.pageX+', '+touch.pageY+'; \n'+o.innerHTML;}
+	}, false);
+}, false);
+window.addEventListener('load', function() {
+	document.body.addEventListener('touchmove', function(e) {
 		e.preventDefault();
 		var touch = e.touches[0];
 		var o = document.getElementsByTagName('output')[0];
 		o.innerHTML =  't ' + touch.pageX+', '+touch.pageY+'; \n'+o.innerHTML;
-		o.innerHTML = flag
 	}, false);
 }, false);
 </script>
