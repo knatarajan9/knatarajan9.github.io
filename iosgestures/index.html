@@ -28,21 +28,35 @@ output {
 var flag = 0
 var fingercount = 0
 window.addEventListener('load', function() {
+	document.body.addEventListener('gesturechange', function(e) {
+		e.preventDefault();
+		var o = document.getElementsByTagName('output')[0];
+		o.innerHTML = e.scale+', '+e.rotation+'; \n'+o.innerHTML;
+		flag = 1
+	}, false);
+}, false);
+window.addEventListener('load', function() {
 	document.body.addEventListener('touchstart', function(e) {
 		if (flag == 0){
 		e.preventDefault();
-		var touch = e.touches[e.touches.length-1]
 		var o = document.getElementsByTagName('output')[0];
-		o.innerHTML =  't ' + touch.pageX+', '+touch.pageY+'; \n'+o.innerHTML;}
+		var i;
+		for (i = 0; i < e.touches.length; i++) { 
+			var touch = e.touches[i]
+  		  	o.innerHTML =  i+', ' + touch.pageX+', '+touch.pageY+'; \n'+o.innerHTML;}
+		}
 	}, false);
 }, false);
 window.addEventListener('load', function() {
 	document.body.addEventListener('touchmove', function(e) {
 		if (flag == 0){
 		e.preventDefault();
-		var touch = e.touches[e.touches.length-1]
 		var o = document.getElementsByTagName('output')[0];
-		o.innerHTML =  touch.pageX+', '+touch.pageY+'; \n'+o.innerHTML;}
+		var i;
+		for (i = 0; i < e.touches.length; i++) { 
+			var touch = e.touches[i]
+  		  	o.innerHTML =  i+', ' + touch.pageX+', '+touch.pageY+'; \n'+o.innerHTML;}
+		}
 	}, false);
 }, false);
 </script>
