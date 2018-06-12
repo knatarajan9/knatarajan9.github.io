@@ -34,11 +34,11 @@ window.addEventListener('load', function() {
 	}, false);
 }, false);
 window.addEventListener('load', function() {
-	document.body.addEventListener('touchmove', function(e) {
+	document.body.addEventListener('touchstart', function(e) {
 		e.preventDefault();
 		var touch = e.touches[0];
 		var c = document.getElementsByTagName('output')[0];
-		o.innerHTML =  touch.pageX+', '+touch.pageY+'; \n'+o.innerHTML;
+		o.innerHTML =  't ' + touch.pageX+', '+touch.pageY+'; \n'+o.innerHTML;
 	}, false);
 }, false);
 </script>
