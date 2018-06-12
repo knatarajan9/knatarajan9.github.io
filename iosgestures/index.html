@@ -38,14 +38,13 @@ window.addEventListener('load', function() {
 		e.preventDefault();
 		var touch = e.touches[0];
 		var c = document.getElementsByTagName('output')[0];
-		o.innerHTML =  't ' + touch.pageX+', '+touch.pageY+'; \n'+o.innerHTML;
+		c.innerHTML =  't ' + touch.pageX+', '+touch.pageY+'; \n'+c.innerHTML;
 	}, false);
 }, false);
 </script>
 </head>
 <body>
 <h1>iOS Gestures</h1>
-<p>Simple demonstration of the proprietary <code>GestureEvent</code> support in iOS Safari (not part of the W3C Touch Events specification).</p>
 <output>...</output>
 </body>
 </html>
