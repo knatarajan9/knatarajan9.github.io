@@ -52,24 +52,28 @@
 	// Set up touch events for mobile, etc
 	canvas.addEventListener("touchstart", function (e) {
 		mousePos = getTouchPos(canvas, e);
-		var touch = e.touches[0];
-		var mouseEvent = new MouseEvent("mousedown", {
-			clientX: touch.clientX,
-			clientY: touch.clientY
-		});
-		canvas.dispatchEvent(mouseEvent);
+		var i;
+		for (i = 0; i < e.touches.length; i++) { 
+			var touch = e.touches[i];
+			var mouseEvent = new MouseEvent("mousedown", {
+				clientX: touch.clientX,
+				clientY: touch.clientY
+			});
+			canvas.dispatchEvent(mouseEvent);}
 	}, false);
 	canvas.addEventListener("touchend", function (e) {
 		var mouseEvent = new MouseEvent("mouseup", {});
 		canvas.dispatchEvent(mouseEvent);
 	}, false);
 	canvas.addEventListener("touchmove", function (e) {
-		var touch = e.touches[0];
+		var i;
+		for (i = 0; i < e.touches.length; i++) { 
+			var touch = e.touches[i];
 		var mouseEvent = new MouseEvent("mousemove", {
 			clientX: touch.clientX,
 			clientY: touch.clientY
 		});
-		canvas.dispatchEvent(mouseEvent);
+		canvas.dispatchEvent(mouseEvent);}
 	}, false);
 
 	// Prevent scrolling when touching the canvas
