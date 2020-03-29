@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=820, initial-scale=0.5">
+
+  <title>ROC curve demonstration</title>
+  <meta name="description" content="There are lots of applications to machine learning, and the most popular problem in practice is binary classification.Examples of things we want to predict:">
+
+
+
+  <link rel="stylesheet" href="/css/main.css">
+  <!--<link rel="stylesheet" href="/css/alex.css">-->
+
+  <link rel="canonical" href="http://arogozhnikov.github.io/2015/10/05/roc-curve.html">
+  <link rel="alternate" type="application/rss+xml" title="Brilliantly wrong" href="http://arogozhnikov.github.io/feed.xml" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/images/favicon-96x96.png">
+
+  <link rel="stylesheet" href="/scripts/external_scripts/katex/katex.min.css">
+  <script src="/scripts/external_scripts/katex/katex.min.js"></script>
+  <script src="/scripts/external_scripts/katex/contrib/auto-render.min.js"></script>
+  <script>
+    // can be filled along the way
+    var tex_macros = {};
+
+    var options = {
+        delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "\\(", right: "\\)", display: false},
+            {left: "`$", right: "$`", display: false},
+            {left: "$", right: "$", display: false}
+        ],
+        macros: tex_macros // I am not sure this is actually working
+    };
+    document.addEventListener("DOMContentLoaded", function() {
+      renderMathInElement(document.body, options);
+    });
+  </script>
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title"
+      style="line-height: 35px; font-weight: bold; padding: 12px 0px; color: white;"
+      href="/">Brilliantly wrong
+      <span style="margin: 0px; line-height: 0px; color: #AAA;"><br />thoughts on science and programming</span>
+    </a>
+
+
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+          
+          <a class="page-link" href="/about/">About me</a>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+          <a class="page-link" href="/css/%D0%BF%D0%BE%D1%82%D0%BE%D0%BA_%D1%81%D0%BE%D0%B7%D0%BD%D0%B0%D0%BD%D0%B8%D1%8F.html"></a>
+          
+        
+          
+          <a class="page-link" href="/scripts/external_scripts/katex/"></a>
+          
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">ROC curve demonstration</h1>
+    <p class="post-meta">Oct 5, 2015 • Alex Rogozhnikov</p>
+  </header>
+
+  <article class="post-content">
+    <p>There are lots of applications to machine learning, and the most popular problem in practice is <strong>binary classification</strong>.
+Examples of things we want to predict:</p>
+
+<ul>
+  <li>user will click / buy something or not</li>
+  <li>page is appropriate to request or not</li>
+  <li>charge of particle is positive or negative</li>
+  <li>observed signal decay or something else</li>
+  <li>bright object on the sky is galaxy or quasar</li>
+</ul>
+
+<p>There are many different area-specific metrics to estimate quality of classification, 
+ however the basic tool one should be able to work with regardless of the area is <strong>ROC curve</strong> (which I will talk about in this post).</p>
+
+<h2 id="notions-in-binary-classification-for-binary-predictions-isas-notation">Notions in binary classification for binary predictions, is/as notation</h2>
+
+<p>We have two classes: class 0 and class 1, background and signal respectively.
+In the simplest case predictions are binary: each observation is attributed by a classifier to be signal or background.</p>
+
+<p>Unfortunately, there are too many terms used in the literature to describe this (trivial) classification result.
+Scary <a href="https://en.wikipedia.org/wiki/Binary_classification">image from wikipedia</a> shows how many different terms people were able to invent to describe a space with 4 degrees of freedom.</p>
+
+<p>Let me introduce my own notion, hopefully more systematic (%picture about 15 standards%):</p>
+
+<ul>
+  <li>isS (isSignal), isB (isBackground) — how many observation really belong to this class</li>
+  <li>asS (asSignal), asB (asBackground) — how many observation were classified as signal (background)</li>
+  <li>isSasB (isSignalasBackground) — how many signal observation were erroneously classified as background.
+isSasS, isBasB, isBasS are defined in the same way.</li>
+</ul>
+
+<p>Hardly one can misunderstand what each of introduced numbers means.</p>
+
+<p>So, there are actually only 4 basic numbers:  isSasS, isSasB, isBasS, isBasB.</p>
+
+<p>All the other information can be easily reconstructed:</p>
+
+<ul>
+  <li>isS = isSasS + isSasB</li>
+  <li>isB = isBasS + isBasB</li>
+  <li>asS = isSasS + isBasS</li>
+  <li>asB = isSasB + isBasB</li>
+</ul>
+
+<p>Other typically used measures:</p>
+
+<ul>
+  <li>
+    <p>true positive rate (part of correctly classified signal, also known as <strong>recall</strong>, <strong>sensitivity</strong> or <strong>signal efficiency</strong>).</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>tpr = isSasS / isS 
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>false positive rate (part of incorrectly classified background, aka <strong>background efficiency</strong>)</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>fpr = isBasS / isB 
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>also there are <code class="language-plaintext highlighter-rouge">tnr = isBasB / isB</code> and <code class="language-plaintext highlighter-rouge">fnr = isSasB / isS</code> (tnr also known as <em>specificity</em>)</p>
+  </li>
+</ul>
+
+<p>Other way to define parameters is True/False Positives/Negatives:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TP = isSasS, FP = isBasS, TN = isBasB, FN = isSasB  
+</code></pre></div></div>
+
+<p>But it is too easy (at least for me) to mess FP and FN, so I prefer to avoid this notion.</p>
+
+<h2 id="continuous-predictions-roc-curve">Continuous predictions. ROC curve</h2>
+
+<p>As it is clear now, there are different ways to measure quality of binary predictions.
+The bad thing is people frequently start by comparing those.</p>
+
+<p>Meanwhile, the output of classifier is <strong>real-valued, not binary</strong>.</p>
+
+<p>What’s wrong with using binary predictions?</p>
+
+<ol>
+  <li>to estimate quality, one needs to select threshold. Usually people forget about this (and use default, which far from the optimal one)</li>
+  <li>binary metrics are frequently unstable and need many samples in validation (statistical variation is comparable to gain obtained by changing parameters),
+this drives to unstable model selection.</li>
+  <li>in many cases, trained classifier is not used to make decisions, but needed reconstruct the probabilities later used in next stages of ML pipeline</li>
+</ol>
+
+<blockquote>
+    It's a bad idea to use rough predictions of classifier (<code>classifier.predict(X)</code> in scikit-learn), 
+    instead always use probabilities <code>classifier.predict_proba(X)</code> 
+</blockquote>
+
+<p>So the right way is to look at the whole picture and compare how well the classifier was able to separate classes.
+How ‘far’ distributions of output of signal and background.</p>
+
+<h2 id="roc-curve">ROC curve</h2>
+
+<p>The graphical way to compare output of two classifiers is ROC curve, 
+which is built by checking <em>all possible thresholds</em>.
+For each threshold <code class="language-plaintext highlighter-rouge">tpr</code> and <code class="language-plaintext highlighter-rouge">fpr</code> are computed (which part of signal/background event passes this threshold).</p>
+
+<p>After checking all possible thresholds, we get the ROC curve.
+When ROC curve coincides with diagonal — this is the worst situation,
+because two distributions coincide.
+The higher ROC curve — the better discrimination between signal and background.</p>
+
+<p>If at every point ROC curve of classifier A is higher than curve of classifier B,
+we are sure to say that in any application classifier A is better.</p>
+
+<p><img src="/images/roc_curve.gif" alt="ROC curve interactive demonstration interface" style="width: 600px; margin: auto; box-shadow: 0 0 30px 0 black; margin: 40px 10px;" /></p>
+
+<h2 id="roc-curve-interactive-demo">ROC curve interactive demo</h2>
+
+<p>You can play with this demonstration, it’s expected to work in any browser without additional plugins.</p>
+
+<h3 id="instructions">Instructions</h3>
+
+<p>On the right plot: two compared distributions (normal distributions are considered in this demonstration).
+On the left plot: corresponding <a href="https://en.wikipedia.org/wiki/Receiver_operating_characteristic">ROC curve.</a></p>
+
+<p>Controls:</p>
+
+<ul>
+  <li>4 inputs with means and variances of distributions</li>
+  <li>Also vertical line corresponding to threshold can be moved</li>
+</ul>
+
+<p>Presentation was prepared by Oleg Alenkin and Alex Rogozhnikov.</p>
+
+<div class="layout-wrapper">
+    <div class="controls">
+        <label for="mean1">mean #1:</label><input id="mean1" type="number" size="5" value="0" onchange="draw()" />
+        <label for="mean2">mean #2:</label><input id="mean2" type="number" size="5" value="2" onchange="draw()" />
+        <label for="var1">variance #1:</label><input id="var1" type="number" size="5" value="4" onchange="draw()" />
+        <label for="var2">variance #2:</label><input id="var2" type="number" size="5" value="4" onchange="draw()" />
+    </div>
+    <div id="renderer">
+        <!-- here all the plots will be rendered -->
+    </div>
+
+    <link rel="stylesheet" href="/css/roc_curve.css" />
+    <script src="/scripts/d3.min.js" charset="utf-8"></script>
+    <script src="/scripts/jquery-2.1.4.js" charset="utf-8"></script>
+    <script src="/scripts/roc_curve.js" charset="utf-8"></script>
+</div>
+
+<h2 id="area-under-roc">Area under ROC</h2>
+
+<p>General-purpose measure of classification quality is area under ROC curve.</p>
+
+<p>In the worst case it is 0.5, while the ideal classification corresponds to area = 1.</p>
+
+<p>This figure of merit is very stable (prediction for a single data sample does not change the value significantly), 
+and moreover enjoys the following mathematical property:</p>
+
+<p><script type="math/tex">% <![CDATA[
+\text{area under ROC} = P(x < y) %]]></script>, where $x$ and $y$ are predictions of random signal and background samples.
+So this is a probability that random signal and random background samples’ predictions are correctly ordered.</p>
+
+<h3 id="measures-of-quality-through-the-prism-of-roc">Measures of quality through the prism of ROC</h3>
+
+<p>Interesting moment in ROC curve is that it is completely invariant to any monotonic transformations of classifier’s output.
+If you divide the predictions of classifier by two, ROC curve will stay the same.
+Or if you exponentiate predictions — again, nothing changes.</p>
+
+<p>This notable property makes ROC curve the universal base for comparison of classification models, because it contains 
+all necessary information (fractions of observations passing thresholds) while ignoring everything inessential (predictions values).</p>
+
+<p>However curve is not a number, and the final quality still should be computed according to real problem (based on ROC curve).</p>
+
+<p><strong>accuracy</strong>: assuming that you have $N_s$ signal objects and $N_b$ background objects, 
+the expected number of quest samples is $N_s \times TPR + N_b \times (1 - FPR)$, to maximize the number 
+of correctly predicted objects, you should select a threshold, which corresponds to maximum of this value on the ROC.
+(As you can check, at this point ROC should be tangent to line $N_s \times TPR - N_b \times FPR = const$.</p>
+
+<p><strong>weighted accuracy</strong>: another example (which frequently corresponds to practice). 
+Imaging that for each correct guess about new object you are paid.
+But the cost for correctly guessing signal and background are different: $c_s, c_b$. 
+To maximize the income, the threshold for decision rule should correspond to point at ROC curve, where
+ <script type="math/tex">N_s \times TPR \times c_s + N_b \times (1 - FPR) \times c_b</script> is maximal.</p>
+
+<p>One of such examples is email spam filtering:
+cost for incorrect classification of ham letter is times higher than cost for making wrong prediction for spam letter.</p>
+
+<p>In particle physics more complicated expressions are usually taken as a final measure of classification quality.
+Those are corresponding to hypothesis testing (punzy metric, median significance), but the idea is still the same: 
+one should maximize some figure of merit and take corresponding threshold.</p>
+
+<h2 id="links">Links</h2>
+
+<ul>
+  <li><a href="https://en.wikipedia.org/wiki/Receiver_operating_characteristic">wikipedia article on the topic</a></li>
+  <li><a href="http://blog.yhathq.com/posts/roc-curves.html">yhat about ROC</a></li>
+  <li><a href="http://scikit-learn.org/stable/auto_examples/model_selection/plot_roc.html">python implementation of ROC</a></li>
+  <li><a href="https://cran.r-project.org/web/packages/ROCR/index.html">R implementation of ROC</a></li>
+  <li><a href="https://arogozhnikov.github.io/2015/09/29/NumpyTipsAndTricks1.html#Computing-ROC-curve">writing ROC curve in numpy</a></li>
+</ul>
+
+
+  </article>
+
+  <!-- adding temp info -->
+  <!--
+  <div class='job-looking' style='background: #DEF; font-size: 1.2em; padding: 30px;'  >
+    Psst. Looking for a <strong>research scientist in machine learning</strong> to join your team? <br />
+    Drop me an email, I'm currently open for opportunities! <a href='http://arogozhnikov.github.io/cv/AlexRogozhnikov.html' >My CV</a>.
+  </div>
+  -->
+  <!-- end of temp info -->
+
+</div>
+
+      </div>
+    </div>
+
+    <div class="after-article">
+    <div>
+        <h2 style="text-align: center;">Top posts at "brilliantly wrong": <small>(<a href="https://arogozhnikov.github.io">all posts</a>)</small></h2>
+        <div class='visualizations-list'>
+            <div>
+                <a href="/2016/07/05/gradient_boosting_playground.html">
+                <img src="/images/mini/mini_gb_playground.png" alt="">
+                Gradient boosting <br />playground
+                </a>
+            </div>
+            <div>
+                <a href="/2016/12/19/markov_chain_monte_carlo.html">
+                <img src="/images/mini/mini_hmc_explained.png" alt="">
+                Hamiltonian MC <br/>explained
+                </a>
+            </div>
+            <div>
+                <a href="/2016/06/24/gradient_boosting_explained.html">
+                <img src="/images/mini/mini_gb_explained.png" alt="">
+                Gradient boosting <br />explained
+                </a>
+            </div>
+            <div>
+                <a href="/2016/02/09/DrawingPictureWithML.html">
+                <img src="/images/mini/mini_reconstructing.png" alt="">
+                Reconstructing pictures <br/> with ML
+                </a>
+            </div>
+            <div>
+                <a href="//arogozhnikov.github.io/3d_nn">
+                <img src="/images/mini/mini_3d_nn.png" alt="">
+                Neural Networks <br/> 
+                visualized in 3d
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="recommended-links">
+        <ul>
+            <li>
+                <a href="/2016/09/10/jupyter-features.html"> Jupyter (IPython) notebooks features </a>
+            </li>
+            <li>
+                Numpy tips and tricks:
+                <a href="/2015/09/29/NumpyTipsAndTricks1.html">
+                        part 1</a>,
+                <a href="/2015/09/30/NumpyTipsAndTricks2.html">
+                        part 2
+                    </a>
+            </li>
+            <li>
+                <a href="/2015/10/09/gradient-boosted-reweighter.html">
+                        Reweighting with Boosted Decision Trees
+                    </a>
+            </li>
+            <li>
+                <a href="/2017/04/20/machine-learning-in-science-and-industry.html">Machine Learning in Science and Industry</a>
+            </li>
+        </ul>
+        <ul>
+            <li>
+                <a href="/2015/09/08/SpeedBenchmarks.html">
+                        Speed benchmarks: numpy vs all.
+                    </a>
+            </li>
+            <li>
+                Machine learning in COMET:
+                <a href="/2015/06/22/machine-learning-used-in-tracking-of.html">
+                        part 1</a>,
+                <a href="/2015/07/05/machine-learning-in-comet-experiment.html">
+                        part 2
+                    </a>
+            </li>
+            <li><a href="/2015/10/05/roc-curve.html">ROC curve explained</a>
+            </li>
+            <li>
+                <a href="/2015/12/19/optimal-control-of-oscillations.html">Optimal control of oscillations</a>
+            </li>
+
+        </ul>
+    </div>
+</div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Brilliantly wrong 
+      <!--<span style="color: #888;">(subscribe <a href="/feed.xml">via RSS</a>)</span>-->
+    </h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col  footer-col-1">
+        <ul class="contact-list">
+          <li>Alex Rogozhnikov</li>
+          <li><a href="mailto:alex.rogozhnikov@yandex.ru">alex.rogozhnikov@yandex.ru</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-2">
+        <ul class="social-media-list">
+          
+          <li>
+            <a href="https://github.com/arogozhnikov">
+              <span class="icon  icon--github">
+                <svg viewBox="0 0 16 16">
+                  <path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"></path>
+                </svg>
+              </span>
+
+              <span class="username">arogozhnikov</span>
+            </a>
+          </li>
+          
+
+          
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-3">
+        <p class="text">Brilliantly Wrong — Alex Rogozhnikov's blog about math, machine learning, programming and high energy physics.</p>
+      </div>
+    </div>
+
+
+  </div>
+  <div class="counters">
+
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+        (function (d, w, c) {
+            (w[c] = w[c] || []).push(function() {
+                try {
+                    w.yaCounter32426790 = new Ya.Metrika({
+                        id:32426790,
+                        clickmap:true,
+                        trackLinks:true,
+                        accurateTrackBounce:true
+                    });
+                } catch(e) { }
+            });
+
+            var n = d.getElementsByTagName("script")[0],
+                s = d.createElement("script"),
+                f = function () { n.parentNode.insertBefore(s, n); };
+            s.type = "text/javascript";
+            s.async = true;
+            s.src = "https://mc.yandex.ru/metrika/watch.js";
+
+            if (w.opera == "[object Opera]") {
+                d.addEventListener("DOMContentLoaded", f, false);
+            } else { f(); }
+        })(document, window, "yandex_metrika_callbacks");
+    </script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/32426790" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+      <!-- /Yandex.Metrika counter -->
+
+      <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-12796577-4', 'auto');
+      ga('send', 'pageview');
+
+    </script>
+  </div>
+</footer>
+
+
+  </body>
+
+</html>
